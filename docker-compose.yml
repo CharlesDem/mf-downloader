@@ -17,9 +17,8 @@ services:
       retries: 3
 
   mf-downloader:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
+    image: mf-downloader:latest
     env_file:
       - .env
     container_name: mf-downloader

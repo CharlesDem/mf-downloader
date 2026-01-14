@@ -20,4 +20,20 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           script: |
+            rm -rf mf-downloader
+
+            git clone git@github.com:CharlesDem/mf-downloader.git mf-downloader
+
             ls -a
+
+            cd mf-downloader
+
+            cat <<EOF > .env
+            MF_APIKEY=${{ secrets.MF_APIKEY }}
+            MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}
+            MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}
+            EOF
+
+            ls -a
+
+            docker compose up -d --build

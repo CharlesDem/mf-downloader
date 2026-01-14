@@ -4,7 +4,10 @@ WORKDIR /app
 
 COPY file_helper.py .
 COPY cron.py .
+COPY requirements.txt .
 
-WORKDIR /app/write
+RUN mkdir -p compressed
+
+RUN pip install -r requirements.txt
 
 CMD ["python", "-u", "cron.py"]
