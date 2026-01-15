@@ -8,7 +8,7 @@ COPY requirements.txt .
 COPY minio_config.py .
 COPY discord_alerter.py .
 
-RUN mkdir -p compressed
+RUN apk add --no-cache ca-certificates
 
 RUN pip install -r requirements.txt
 
