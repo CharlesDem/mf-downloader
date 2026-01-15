@@ -1,5 +1,8 @@
+from dotenv import load_dotenv
 from minio import Minio
 import os
+
+load_dotenv()
 
 minio_client = Minio(
     endpoint="minio:9000",

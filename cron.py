@@ -1,21 +1,32 @@
 from datetime import datetime
 import time
 import schedule
-from file_helper import dl_file_to_s3, URL
+import structlog
+from file_helper import dl_pagb_all
+
+OFFSET_MINUTES = 5   #avoid 'quart d'heure pile poil'
+
+log = structlog.get_logger()
+
 
 def job() -> None:
-    minute = datetime.now().minute
-    if minute % 5 != 0:
+    now = datetime.now()
+    minute = now.minute
+
+    if (minute - OFFSET_MINUTES) % 15 != 0:
         return
 
-    dl_file_to_s3(URL)
+    dl_pagb_all("files-pagb")
 
 def main() -> None:
-    schedule.every(1).minutes.do(job)
+    try :
+        schedule.every(1).minutes.do(job)
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+    except Exception as e:
+        log.error(f"Unmanaged error, {e}")
 
 if __name__ == "__main__":
     main()
