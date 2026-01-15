@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from minio import S3Error
 import requests
 import structlog
+from discord_alerter import discord_error
 from minio_config import minio_client, ensure_bucket, bufr_bucket
 import tarfile
 
@@ -49,9 +50,15 @@ def dl_pagb_all(temp: str):
             for file in files_to_upload:
                 dl_file_to_s3(file)
 
+        except Exception as e:
+            log.error(f"Unmanaged error {e}")
+
         finally:
-            del_temp_files(temp)
-            log.info(f"Directory and files removed: {temp}")
+            try:
+                del_temp_files(temp)
+                log.info(f"Directory and files removed: {temp}")
+            except Exception as cleanup_error:
+                log.error(f"Cleanup failed: {cleanup_error}")
 
 
 def dl_file_to_local_temp(url: str, path: str, station_id: str) -> list[str]:
@@ -90,6 +97,7 @@ def dl_file_to_local_temp(url: str, path: str, station_id: str) -> list[str]:
 
             if attempt == MAX_RETRIES:
                 log.error("Giving_up", attempts=MAX_RETRIES)
+                discord_error(f"Error while dowloading or sending to minio for data station {station_id}, retry depleted")
                 return []
 
             time.sleep(RETRY_DELAY)

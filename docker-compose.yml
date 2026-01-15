@@ -24,7 +24,5 @@ services:
     container_name: mf-downloader
     restart: always
 
-
-
 volumes:
   minio_data:

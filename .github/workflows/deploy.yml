@@ -30,6 +30,7 @@ jobs:
             MF_APIKEY=${{ secrets.MF_APIKEY }}
             MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}
             MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}
+            WEBHOOK_DISCORD=${{ secrets.WEBHOOK_DISCORD }}
             EOF
 
             docker compose up -d --build
