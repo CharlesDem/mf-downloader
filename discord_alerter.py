@@ -1,12 +1,7 @@
-import os
-from dotenv import load_dotenv
 import requests
 import json
 from typing import Any, Dict, List
-
-load_dotenv()
-
-WEBHOOK_URL = os.environ["WEBHOOK_DISCORD"]
+from config import discord_config as dc
 
 def discord_error(
     message: str,
@@ -33,7 +28,7 @@ def discord_error(
 
     try:
         requests.post(
-            WEBHOOK_URL,
+            dc.web_hook,
             data=json.dumps(payload),
             headers={"Content-Type": "application/json"},
             timeout=10,

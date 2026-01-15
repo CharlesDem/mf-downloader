@@ -5,8 +5,8 @@ WORKDIR /app
 COPY file_helper.py .
 COPY cron.py .
 COPY requirements.txt .
-COPY minio_config.py .
 COPY discord_alerter.py .
+COPY config.py .
 
 RUN apk add --no-cache ca-certificates
 
