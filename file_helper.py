@@ -11,8 +11,10 @@ from minio_config import minio_client, ensure_bucket, bufr_bucket
 import tarfile
 
 load_dotenv()
+SCRIPT_DIR = Path(__file__).resolve().parent
 
-stations_ids = ['36','37','38','40','41','42','43','44','45','47','49','50','51','52','53','54','55','56','57','59','60','61','62','63','64','65','66','67','68','69']
+
+stations_ids = ['36','37','38','40','41','42','43','44','45','47','49','50','51','52','53','54','55','56','57','59','61','62','63','65','66','67','68','69']
 
 URL = "https://public-api.meteofrance.fr/public/DPPaquetRadar/v1/station/paquet?id_station="
 apikey = os.getenv("MF_APIKEY", "")
@@ -23,8 +25,6 @@ headers = {
     "accept": "application/octet-stream+gzip",
     "apikey": apikey
 }
-
-SCRIPT_DIR = Path(__file__).resolve().parent
 
 MAX_RETRIES = 5
 RETRY_DELAY = 5
@@ -47,6 +47,7 @@ def dl_pagb_all(temp: str):
     for station_id in stations_ids:
         try:
             files_to_upload = dl_file_to_local_temp(URL, temp, station_id)
+
             for file in files_to_upload:
                 dl_file_to_s3(file)
 
