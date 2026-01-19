@@ -22,7 +22,7 @@ services:
       - minio-net
 
   mf-downloader:
-    build: .
+    build: ./downloader
     image: mf-downloader:latest
     env_file:
       - .env

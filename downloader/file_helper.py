@@ -31,7 +31,6 @@ def dl_pagb_all(temp: str):
     for station_id in dl_config.stations_ids:
         try:
             files_to_upload = dl_file_to_local_temp(dl_config.url, temp, station_id)
-
             for file in files_to_upload:
                 dl_file_to_s3(file)
 
@@ -58,21 +57,21 @@ def dl_file_to_local_temp(url: str, path: str, station_id: str) -> list[str]:
 
             with requests.get(url_with_station, stream=True, timeout=10, headers=dl_config.headers) as r:
                 r.raise_for_status()
-
                 file = f"{path}/archive.gz"
                 with open(file, "wb") as f:
+
                     for chunk in r.iter_content(chunk_size=1024 * 1024):
                         if chunk:
                             f.write(chunk)
 
-                    log.info(f"Package radar downloaded for station {station_id}, file {file} created")
+                    log.info(f"BUFR radar downloaded for station {station_id}, file {file} created")
 
                     extract(file, path)
                     log.info(f"File {file} unzipped")
 
                     files_to_save = find_files(f"T_PAGB", path)
                     for file_to_save in files_to_save:
-                        log.info(f"/File to save in storage S3 : {file_to_save}")
+                        log.info(f"File to save in storage S3 : {file_to_save}")
 
                     return files_to_save
 

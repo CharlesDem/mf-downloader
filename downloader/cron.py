@@ -19,6 +19,7 @@ def job() -> None:
     dl_pagb_all("files-pagb")
 
 def main() -> None:
+
     try :
         schedule.every(1).minutes.do(job)
 
