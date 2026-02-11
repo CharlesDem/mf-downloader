@@ -22,8 +22,7 @@ services:
       - minio-net
 
   mf-downloader:
-    build: ./downloader
-    image: mf-downloader:latest
+    image: ghcr.io/charlesdem/mf-downloader:latest
     env_file:
       - .env
     container_name: mf-downloader
