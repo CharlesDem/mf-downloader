@@ -1,36 +1,94 @@
-name: Deploy to VPS
+name: Build & Deploy to VPS
 
 on:
   push:
     branches:
-      - main
+      - 'main'
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build & push image
+        run: |
+          docker build -t ghcr.io/charlesdem/mf-downloader:latest ./downloader
+          docker push ghcr.io/charlesdem/mf-downloader:latest
+
+      - name: Copy compose file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "/opt/mf-downloader"
+
+      - name: Deploy on VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           script: |
-            rm -rf mf-downloader
+            cd /opt/mf-downloader
 
-            git clone git@github.com:CharlesDem/mf-downloader.git mf-downloader
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            cd mf-downloader
-
-            cat <<EOF > .env
-            MF_APIKEY=${{ secrets.MF_APIKEY }}
-            MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}
-            MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}
-            WEBHOOK_DISCORD=${{ secrets.WEBHOOK_DISCORD }}
+            cat <<-EOF > .env
+              MF_APIKEY=${{ secrets.MF_APIKEY }}
+              MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}
+              MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}
+              WEBHOOK_DISCORD=${{ secrets.WEBHOOK_DISCORD }}
             EOF
+            docker compose pull
+            docker compose up -d
 
-            docker compose up -d --build
+
+
+# name: Deploy to VPS
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Deploy via SSH
+#         uses: appleboy/ssh-action@v1
+#         with:
+#           host: ${{ secrets.VPS_HOST }}
+#           username: ${{ secrets.VPS_USER }}
+#           key: ${{ secrets.VPS_PRIVATE_KEY }}
+#           script: |
+#             rm -rf mf-downloader
+
+#             git clone git@github.com:CharlesDem/mf-downloader.git mf-downloader
+
+#             cd mf-downloader
+
+#             cat <<EOF > .env
+#             MF_APIKEY=${{ secrets.MF_APIKEY }}
+#             MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}
+#             MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}
+#             WEBHOOK_DISCORD=${{ secrets.WEBHOOK_DISCORD }}
+#             EOF
+
+#             docker compose up -d --build
