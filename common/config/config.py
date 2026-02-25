@@ -16,16 +16,16 @@ class MinioConfig:
             endpoint="mf-minio:9000",
             access_key=os.environ["MINIO_ROOT_USER"],
             secret_key=os.environ["MINIO_ROOT_PASSWORD"],
-            secure=True,
-            http_client=self._get_http_client(),
+            secure=False,
+            # http_client=self._get_http_client(),
         )
 
-    def _get_http_client(self) -> urllib3.PoolManager:
-        return urllib3.PoolManager(
-            cert_reqs="CERT_REQUIRED",
-            ca_certs="/etc/ssl/certs/ca-certificates.crt",
-            assert_hostname=False,
-        )
+    # def _get_http_client(self) -> urllib3.PoolManager:
+    #     return urllib3.PoolManager(
+    #         cert_reqs="CERT_REQUIRED",
+    #         ca_certs="/etc/ssl/certs/ca-certificates.crt",
+    #         assert_hostname=False,
+    #     )
 
     def ensure_bucket(self, bucket: str) -> None:
         if not self.minio_client.bucket_exists(bucket):

@@ -226,4 +226,5 @@ subject.txt
 compressed/
 data/
 typings/
-test/
+tests/
+bufr_parser/test/

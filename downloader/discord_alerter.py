@@ -1,7 +1,7 @@
 import requests
 import json
 from typing import Any, Dict, List
-from config import discord_config as dc
+from common.config.config import discord_config as dc
 
 def discord_error(
     message: str,

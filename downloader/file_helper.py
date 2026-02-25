@@ -1,13 +1,16 @@
+from datetime import datetime
 import os
 from pathlib import Path
+import re
 import shutil
 import time
 from minio import S3Error
 import requests
 import structlog
+from common.db.queries import create_file_metadata, delete_file_metadata
 from discord_alerter import discord_error
 import tarfile
-from config import dl_config, minio_config as mc
+from common.config.config import dl_config, minio_config as mc
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -32,7 +35,12 @@ def dl_pagb_all(temp: str):
         try:
             files_to_upload = dl_file_to_local_temp(dl_config.url, temp, station_id)
             for file in files_to_upload:
-                dl_file_to_s3(file)
+
+                match = re.search(r"_(\d{14})\.bufr\.gz$", file)
+                timestamp = datetime.strptime(match.group(1), "%Y%m%d%H%M%S")
+
+                __save_db_s3(file, station_id, timestamp)
+
 
         except Exception as e:
             log.error(f"Unmanaged error {e}")
@@ -44,6 +52,16 @@ def dl_pagb_all(temp: str):
             except Exception as cleanup_error:
                 log.error(f"Cleanup failed: {cleanup_error}")
 
+
+def __save_db_s3(file_path: str, station_id: int, timestamp: str)-> str:
+    metadata_id = create_file_metadata(file_path, station_id, timestamp)
+
+    try:
+        dl_file_to_s3(file_path)
+        return metadata_id
+    except Exception:
+        delete_file_metadata(metadata_id)
+        raise
 
 def dl_file_to_local_temp(url: str, path: str, station_id: str) -> list[str]:
 
