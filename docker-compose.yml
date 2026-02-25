@@ -7,8 +7,8 @@ services:
       - "9001:9001"
     env_file:
       - .env
-    environment:
-      MINIO_CERTS_DIR: /home/minio/.minio/certs
+    # environment:
+    #   MINIO_CERTS_DIR: /home/minio/.minio/certs
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
@@ -19,7 +19,7 @@ services:
       timeout: 20s
       retries: 3
     networks:
-      - minio-net
+      - shared
 
   mf-downloader:
     image: ghcr.io/charlesdem/mf-downloader:latest
@@ -28,12 +28,41 @@ services:
     container_name: mf-downloader
     restart: always
     networks:
-      - minio-net
-    extra_hosts:
-      - "minio.warchd.ovh:172.18.0.2"
+      - shared
+    # extra_hosts:
+    #   - "minio.warchd.ovh:172.18.0.2"
+
+  db:
+    image: postgres:18
+    container_name: mf-db
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-vol:/var/lib/postgresql
+      - .common/db/init:/docker-entrypoint-initdb.d
+    networks:
+      - shared
+
+  pgadmin:
+    depends_on:
+      - db
+    image: dpage/pgadmin4
+    container_name: pgadmin_gui_avance
+    env_file:
+      - .env
+    ports:
+      - "8080:80"
+    volumes:
+      - pg-vol:/var/lib/pgadmin
+    networks:
+      - shared
 
 volumes:
   minio_data:
+  pg-vol:
 
 networks:
-  minio-net:
+  shared:
