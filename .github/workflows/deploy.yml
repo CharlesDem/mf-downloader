@@ -1,9 +1,7 @@
 name: Build & Deploy to VPS
 
 on:
-  push:
-    branches:
-      - 'main'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,7 +20,7 @@ jobs:
 
       - name: Build & push image
         run: |
-          docker build -t ghcr.io/charlesdem/mf-downloader:latest ./downloader
+          docker build -t ghcr.io/charlesdem/mf-downloader:latest -f downloader/Dockerfile .
           docker push ghcr.io/charlesdem/mf-downloader:latest
 
       - name: Copy compose file
