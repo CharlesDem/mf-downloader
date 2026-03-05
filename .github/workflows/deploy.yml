@@ -48,45 +48,11 @@ jobs:
               MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}
               MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}
               WEBHOOK_DISCORD=${{ secrets.WEBHOOK_DISCORD }}
+              POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+              POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+              POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+              PGADMIN_DEFAULT_EMAIL=${{ secrets.PGADMIN_DEFAULT_EMAIL }}
+              PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
             EOF
             docker compose pull
             docker compose up -d
-
-
-
-# name: Deploy to VPS
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v4
-
-#       - name: Deploy via SSH
-#         uses: appleboy/ssh-action@v1
-#         with:
-#           host: ${{ secrets.VPS_HOST }}
-#           username: ${{ secrets.VPS_USER }}
-#           key: ${{ secrets.VPS_PRIVATE_KEY }}
-#           script: |
-#             rm -rf mf-downloader
-
-#             git clone git@github.com:CharlesDem/mf-downloader.git mf-downloader
-
-#             cd mf-downloader
-
-#             cat <<EOF > .env
-#             MF_APIKEY=${{ secrets.MF_APIKEY }}
-#             MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}
-#             MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}
-#             WEBHOOK_DISCORD=${{ secrets.WEBHOOK_DISCORD }}
-#             EOF
-
-#             docker compose up -d --build
