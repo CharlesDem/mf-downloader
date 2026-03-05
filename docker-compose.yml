@@ -7,12 +7,9 @@ services:
       - "9001:9001"
     env_file:
       - .env
-    # environment:
-    #   MINIO_CERTS_DIR: /home/minio/.minio/certs
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
-      - /opt/minio/certs:/root/.minio/certs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
